@@ -33,13 +33,16 @@ moviefrm-list-ni (non-interactive version used by `daily-driver-mp`)
 
 ### Example 1
 Step 1 train
+
 `/path/to/.venv/bin/python train-km-mp.py 1 10 20240506000000 20240506235959`
 
 Step 2 predict (output frames from selected clusters from step 1)
+
 `/path/to/.venv/bin/python predict-km.py 80`
 
 Step 3 create a time-lapse video
-./moviefrm-list 20 
+
+`./moviefrm-list 20`
 
 ### Example 2
 `./daily-driver-mp`
