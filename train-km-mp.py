@@ -1,3 +1,7 @@
+###############################################################################
+#            KM-MOD Image Classifier for Security Cameras 
+#                      Sensor Analytics Australia™ 2024
+###############################################################################
 ImgPath='../../foscamR4/snap'
 chunksize=1000 # n imagefiles/processor
 wdir='./tmp-pkl' # path to working dir

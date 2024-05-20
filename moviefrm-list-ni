@@ -1,5 +1,9 @@
 #!/bin/bash
 # Non-interactive version for daily-driver
+###############################################################################
+#            KM-MOD Image Classifier for Security Cameras 
+#                      Sensor Analytics Australia™ 2024
+###############################################################################
 
 DIRP=/mnt/SSD
 FILPATH=./ffnames.txt

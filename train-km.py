@@ -1,5 +1,7 @@
-#ImgPath='../../ocd3_tapo1/images'
-#ImgPath='../../R4'
+###############################################################################
+#            KM-MOD Image Classifier for Security Cameras 
+#                      Sensor Analytics Australia™ 2024
+###############################################################################
 ImgPath='../../foscamR4/snap'
 
 import sys

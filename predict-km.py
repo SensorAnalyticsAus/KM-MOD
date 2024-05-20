@@ -1,3 +1,7 @@
+###############################################################################
+#            KM-MOD Image Classifier for Security Cameras 
+#                      Sensor Analytics Australia™ 2024
+###############################################################################
 prefixP = '/mnt/SSD/foscamR4/snap/'
 
 import sys,os

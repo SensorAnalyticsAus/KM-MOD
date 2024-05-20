@@ -1,4 +1,8 @@
 #!/bin/bash
+###############################################################################
+#            KM-MOD Image Classifier for Security Cameras 
+#                      Sensor Analytics Australia™ 2024
+###############################################################################
 
 PyPath=/home/saauser/.venv/bin
 NumC=10
