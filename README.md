@@ -1,6 +1,6 @@
 
 ### About ###
-*KM-MOD* provides a standalone image classifier for use with date-time stamped motion-detected images from most security cameras. Excessive and repetitive motion images are filtered out leaving real-value images for conversion into a time-lapse video. 
+*KM-MOD* provides a standalone image classifier for use with date-time stamped (YYYYMMDD-HHMMSS) images which most security cameras produce. Repetitive images are filtered out leaving only images of interest. Selected images are converted into a time-lapse video. 
 
 ### Requirements
 * RPI4 2GB or higher
