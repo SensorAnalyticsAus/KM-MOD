@@ -27,7 +27,7 @@ train-km-mp.py
 predict-km.py
 daily-driver-mp
 moviefrm-list
-moviefrm-list-ni (non-interactive version used by `daily-driver-mp`)
+moviefrm-list-ni (non-interactive version used by daily-driver-mp)
 ```
 #### Note: `train-km-mp.py` and `daily-driver-mp` are the multi-threaded versions which will typically reduce image classification time by a half.
 
