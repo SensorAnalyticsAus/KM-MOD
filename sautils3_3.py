@@ -228,6 +228,7 @@ def writeLog(msg,log_file):
  return
 def imgcont(im):
  imgray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+ imgray = cv2.GaussianBlur(src=imgray, ksize=(3, 5), sigmaX=0.5)
  ret, thresh = cv2.threshold(imgray, 127, 255, 0)
  cnt, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
                                         cv2.CHAIN_APPROX_SIMPLE)
