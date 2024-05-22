@@ -9,10 +9,10 @@ deBug=0 # to print mp progress messages set it to '1'
 
 import sys
 if len(sys.argv) < 5:
-   print('USAGE: 0|1 numClusters YYYYMMDDHHMMSS YYYYMMDDHHMMSS')
-   print('0:Elbow Analyses 1:Actual KMeans YYYYMMDDHHMMSS: from -> to date-')
-   print('time range (HHMMSS field in 24-hour clock format)')
-   sys.exit(1)
+    print('USAGE: 0|1 numClusters YYYYMMDDHHMMSS YYYYMMDDHHMMSS')
+    print('0:Elbow Analyses 1:Actual KMeans YYYYMMDDHHMMSS: from -> to date-')
+    print('time range (HHMMSS field in 24-hour clock format)')
+    sys.exit(1)
 import numpy as np
 from sklearn.cluster import KMeans
 import pickle
@@ -42,25 +42,30 @@ def img_load_proc(workpacket):
  if deBug:
     print('Task id:',tid)
  for img in flist:
-      fDt=datetime.strptime(fileDt(img),'%Y%m%d%H%M%S').timestamp()
-      if int(fDt) >= int(st_d_t) and int(fDt) <= int(en_d_t):
-         imgf=os.path.join(fpath,img)
-         imgd=p_img_read(imgf)
-         # Date_TS, Num_Con, Cont_Area, Entropy
-         data.append([int(fileDt(img)),imgcont(imgd)[0],imgcont(imgd)[1],
-                      calcEntropy(imgf)])
-         fnames.append(img)
-         kn +=1
-      if(knt%100 == 0 and deBug == 1): 
-          print('proc:{} images processed: {} selected: {} '.format(tid,knt,kn),
-              end='\r',flush=True)
-      knt +=1
+     fDt=datetime.strptime(fileDt(img),'%Y%m%d%H%M%S').timestamp()
+     if int(fDt) >= int(st_d_t) and int(fDt) <= int(en_d_t):
+        imgf=os.path.join(fpath,img)
+        imgd=p_img_read(imgf)
+        # Date_TS, Num_Con, Cont_Area, Entropy
+        data.append([int(fileDt(img)),imgcont(imgd)[0],imgcont(imgd)[1],
+                     calcEntropy(imgf)])
+        fnames.append(img)
+        kn +=1
+     if(knt%100 == 0 and deBug == 1): 
+         print('proc:{} images processed: {} selected: {} '.format(tid,knt,kn),
+             end='\r',flush=True)
+     knt +=1
  if deBug:
-    print('proc:{} Total images processed: {} selected: {} '.format(tid,knt,kn))
+     print('proc:{} Total images processed: {} selected: {} '
+           .format(tid,knt,kn))
  with open(file_fnames,'wb') as fpkl:
-      fpkl.write(pickle.dumps(fnames))
+     fpkl.write(pickle.dumps(fnames))
  with open(file_data,'wb') as fpkl:
-      fpkl.write(pickle.dumps(data))
+     fpkl.write(pickle.dumps(data))
+ wDir=os.path.dirname(file_fnames)
+ ffstats=os.path.join(wDir,'proc_{}_stats.pkl'.format(tid))
+ with open(ffstats,'wb') as fpkl:
+     fpkl.write(pickle.dumps('{},{}'.format(knt,kn)))
  return None
 
 if not os.path.exists(ImgPath):
@@ -92,19 +97,27 @@ pool = Pool()
 pool.map(img_load_proc,workpckts)
 pool.close()
 pool.join()
-#####################################################################
 
-# Integrate mp output files in working dir#######
+#################### Integrate mp output files in working dir #######
 fnames_all = glob.glob(wdir+'/*fnames*.pkl')
 data_all = glob.glob(wdir+'/*data*.pkl')
+stats_all= glob.glob(wdir+'/*stats*.pkl')
 
 fnames = []
 data = []
 for i,j in zip(fnames_all,data_all):
-   		fnames.extend(pickle.load(open(i,"rb")))
-   		data.extend(pickle.load(open(j,"rb")))
-#################################################
+    fnames.extend(pickle.load(open(i,'rb')))
+    data.extend(pickle.load(open(j,'rb')))
+knt_tot=knt_tot_sel=0
+for f in stats_all:
+    s = pickle.load(open(f,'rb'))
+    ss=s.split(',') 
+    knt_tot += int(ss[0])
+    knt_tot_sel  += int(ss[1])
+print('Total images:{} Images found:{}'
+       .format(knt_tot,knt_tot_sel))
 
+############# Saving Outputs ################################
 save_list(fnames,'fnames.txt')
 data = np.array(data)
 np.set_printoptions(suppress=True, formatter={'float_kind':'{:.1f}'.format})
@@ -113,19 +126,28 @@ dataNormed = data/datamax
 np.savetxt('datamax.txt',datamax, fmt='%.1f') # datamax saved for this run
 np.savetxt('fnames.txt',fnames,delimiter=" ",fmt="%s") # fnames also saved 
 
+# Sanity Checks
+if knt_tot_sel < 1:
+    print('No Images found exiting!')
+    sys.exit(1)
+if knt_tot_sel < nC:
+    print('Images found < number of cluster (nC):{} decreasing nC'
+           .format(nC))
+    nC = knt_tot_sel
+
 ######### Elbow Analyses and Display Block ###############
 if opt == 0:
     matplotlib.use('TkAgg') # to avoid cv2 qt conflict
     inertias = []
-
+ 
     print('Getting ready to display')
     for i in range(1,int(sys.argv[2])):
-        print('.',end='')
-        km = KMeans(n_clusters=i)
-        km.fit(dataNormed)
-        inertias.append(km.inertia_)
+       print('.',end='')
+       km = KMeans(n_clusters=i)
+       km.fit(dataNormed)
+       inertias.append(km.inertia_)
     print('\n')
-
+ 
     print('press [q] inside the display chart to end')
     plt.plot(range(1,int(sys.argv[2])), inertias, marker='o')
     plt.title('Elbow method')
@@ -133,6 +155,7 @@ if opt == 0:
     plt.ylabel('Inertia')
     plt.show(block=True) 
     sys.exit(0)
+
 ################### KMeans Block ################################
 print('ready to train KMeans with:',nC,'clusters')
 km = KMeans(n_clusters=nC,n_init=10) #to get rid of warning
