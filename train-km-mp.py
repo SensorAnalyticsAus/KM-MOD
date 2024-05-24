@@ -3,7 +3,7 @@
 #                      Sensor Analytics Australia™ 2024
 ###############################################################################
 ImgPath='../../foscamR4/snap'
-chunksize=1000 # n imagefiles/processor
+chunksize=500 # n imagefiles/processor
 wdir='./tmp-pkl' # path to working dir
 deBug=0 # to print mp progress messages set it to '1'
 
@@ -30,6 +30,15 @@ import glob
 def p_img_read(name):
  p_img=cv2.imread(name)
  return p_img
+def count_pkl_stats():
+ l = glob.glob('./tmp-pkl/*stats.pkl')
+ s0=s1=0
+ for fn in l:
+    s = pickle.load(open(fn,'rb'))
+    s =  s.split(',')
+    s0 += int(s[0])
+    s1 += int(s[1])
+ return s0,s1 # returns total processed and selected
 def img_load_proc(workpacket):
  tid = workpacket['id']
  fpath = workpacket['imgP']
@@ -46,13 +55,14 @@ def img_load_proc(workpacket):
      if int(fDt) >= int(st_d_t) and int(fDt) <= int(en_d_t):
         imgf=os.path.join(fpath,img)
         imgd=p_img_read(imgf)
-        # Date_TS, Num_Con, Cont_Area, Entropy
+        # Features: Date_TS, Num_Con, Cont_Area, Entropy
         data.append([int(fileDt(img)),imgcont(imgd)[0],imgcont(imgd)[1],
                      calcEntropy(imgf)])
         fnames.append(img)
         kn +=1
-     if(knt%100 == 0 and deBug == 1): 
-         print('proc:{} images processed: {} selected: {} '.format(tid,knt,kn),
+     if(knt%100 == 0 and tid == 0): 
+         s0,s1 = count_pkl_stats()
+         print('images processed: {} selected: {} '.format(s0,s1),
              end='\r',flush=True)
      knt +=1
  if deBug:
@@ -68,6 +78,7 @@ def img_load_proc(workpacket):
      fpkl.write(pickle.dumps('{},{}'.format(knt,kn)))
  return None
 
+##### Main #####
 if not os.path.exists(ImgPath):
     print('fix image path in this code, it  does not exist!',ImgPath)
     sys.exit(1)
