@@ -25,20 +25,11 @@ import cv2
 from datetime import datetime
 from multiprocessing import Pool
 from pathlib import Path
-import glob
+import glob,tqdm
 
 def p_img_read(name):
  p_img=cv2.imread(name)
  return p_img
-def count_pkl_stats():
- l = glob.glob('./tmp-pkl/*stats.pkl')
- s0=s1=0
- for fn in l:
-    s = pickle.load(open(fn,'rb'))
-    s =  s.split(',')
-    s0 += int(s[0])
-    s1 += int(s[1])
- return s0,s1 # returns total processed and selected
 def img_load_proc(workpacket):
  tid = workpacket['id']
  fpath = workpacket['imgP']
@@ -60,10 +51,6 @@ def img_load_proc(workpacket):
                      calcEntropy(imgf)])
         fnames.append(img)
         kn +=1
-     if(knt%100 == 0 and tid == 0): 
-         s0,s1 = count_pkl_stats()
-         print('images processed: {} selected: {} '.format(s0,s1),
-             end='\r',flush=True)
      knt +=1
  if deBug:
      print('proc:{} Total images processed: {} selected: {} '
@@ -79,75 +66,79 @@ def img_load_proc(workpacket):
  return None
 
 ##### Main #####
-if not os.path.exists(ImgPath):
-    print('fix image path in this code, it  does not exist!',ImgPath)
-    sys.exit(1)
+if __name__ == "__main__":
 
-mname = 'km_model.pkl' # trained km model saved as
-print('total images in {} : {}'.format(ImgPath,len(os.listdir(ImgPath))))
+ if not os.path.exists(ImgPath):
+     print('fix image path in this code, it  does not exist!',ImgPath)
+     sys.exit(1)
 
-##########  Data Input Block #################
-opt = int(sys.argv[1]) # 0 for elbow analyses 1 for actual km clustering
-nC = int(sys.argv[2]) # number of clusters for elbow analyses or training 
-st_d_t=datetime.strptime(sys.argv[3],'%Y%m%d%H%M%S').timestamp()
-en_d_t=datetime.strptime(sys.argv[4],'%Y%m%d%H%M%S').timestamp()
-if len(sys.argv[3]) !=14 or len(sys.argv[4]) !=14: 
+ mname = 'km_model.pkl' # trained km model saved as
+ print('total images in {} : {}'.format(ImgPath,len(os.listdir(ImgPath))))
+
+ ##########  Data Input Block #################
+ opt = int(sys.argv[1]) # 0 for elbow analyses 1 for actual km clustering
+ nC = int(sys.argv[2]) # number of clusters for elbow analyses or training 
+ st_d_t=datetime.strptime(sys.argv[3],'%Y%m%d%H%M%S').timestamp()
+ en_d_t=datetime.strptime(sys.argv[4],'%Y%m%d%H%M%S').timestamp()
+ if len(sys.argv[3]) !=14 or len(sys.argv[4]) !=14: 
     print('input datetime error')
     sys.exit(1)
-if int(st_d_t) > int(en_d_t):
+ if int(st_d_t) > int(en_d_t):
     print('input datetime error - inconsistent dates')
     sys.exit(1)
 
-############### MultiProcessing Block ###############################
-mkdir_cleared(wdir) # working dir to save serialised mproc outputs
-img_ls=os.listdir(ImgPath)
-img_ls_chunk=list(chunk(img_ls,chunksize)) 
-workpckts=workpacks(ImgPath,wdir,img_ls_chunk)
+ ############### MultiProcessing Block ###############################
+ mkdir_cleared(wdir) # working dir to save serialised mproc outputs
+ img_ls=os.listdir(ImgPath)
+ img_ls_chunk=list(chunk(img_ls,chunksize)) 
+ workpckts=workpacks(ImgPath,wdir,img_ls_chunk)
 
-pool = Pool()
-pool.map(img_load_proc,workpckts)
-pool.close()
-pool.join()
+ pool = Pool()
+ for _ in tqdm.tqdm(pool.imap_unordered(img_load_proc,workpckts),
+                    total=len(workpckts)):
+   pass
+ pool.close()
+ pool.join()
 
-#################### Integrate mp output files in working dir #######
-fnames_all = glob.glob(wdir+'/*fnames*.pkl')
-data_all = glob.glob(wdir+'/*data*.pkl')
-stats_all= glob.glob(wdir+'/*stats*.pkl')
+ #################### Integrate mp output files in working dir #######
+ fnames_all = glob.glob(wdir+'/*fnames*.pkl')
+ data_all = glob.glob(wdir+'/*data*.pkl')
+ stats_all= glob.glob(wdir+'/*stats*.pkl')
 
-fnames = []
-data = []
-for i,j in zip(fnames_all,data_all):
+ fnames = []
+ data = []
+ for i,j in zip(fnames_all,data_all):
     fnames.extend(pickle.load(open(i,'rb')))
     data.extend(pickle.load(open(j,'rb')))
-knt_tot=knt_tot_sel=0
-for f in stats_all:
+ knt_tot=knt_tot_sel=0
+ for f in stats_all:
     s = pickle.load(open(f,'rb'))
     ss=s.split(',') 
     knt_tot += int(ss[0])
     knt_tot_sel  += int(ss[1])
-print('Total images:{} Images found:{}'
+ print('Total images:{} Images found:{}'
        .format(knt_tot,knt_tot_sel))
 
-############# Saving Outputs ################################
-save_list(fnames,'fnames.txt')
-data = np.array(data)
-np.set_printoptions(suppress=True, formatter={'float_kind':'{:.1f}'.format})
-datamax = data.max(axis=0) #later for scaling prediction vector
-dataNormed = data/datamax
-np.savetxt('datamax.txt',datamax, fmt='%.1f') # datamax saved for this run
-np.savetxt('fnames.txt',fnames,delimiter=" ",fmt="%s") # fnames also saved 
+ ############# Saving Outputs ################################
+ save_list(fnames,'fnames.txt')
+ data = np.array(data)
+ np.set_printoptions(suppress=True, formatter={'float_kind':'{:.1f}'.format})
+ datamax = data.max(axis=0) #later for scaling prediction vector
+ dataNormed = data/datamax
+ np.savetxt('datamax.txt',datamax, fmt='%.1f') # datamax saved for this run
+ np.savetxt('fnames.txt',fnames,delimiter=" ",fmt="%s") # fnames also saved 
 
-# Sanity Checks
-if knt_tot_sel < 1:
+ # Sanity Checks
+ if knt_tot_sel < 1:
     print('No Images found exiting!')
     sys.exit(1)
-if knt_tot_sel < nC:
+ if knt_tot_sel < nC:
     print('Images found < number of cluster (nC):{} decreasing nC'
            .format(nC))
     nC = knt_tot_sel
 
-######### Elbow Analyses and Display Block ###############
-if opt == 0:
+ ######### Elbow Analyses and Display Block ###############
+ if opt == 0:
     matplotlib.use('TkAgg') # to avoid cv2 qt conflict
     inertias = []
  
@@ -167,9 +158,9 @@ if opt == 0:
     plt.show(block=True) 
     sys.exit(0)
 
-################### KMeans Block ################################
-print('ready to train KMeans with:',nC,'clusters')
-km = KMeans(n_clusters=nC,n_init=10) #to get rid of warning
-km.fit(dataNormed)
-pickle.dump(km, open(mname, 'wb')) # dump trained model
-print('KMeans trained model saved as:',mname)
+ ################### KMeans Block ################################
+ print('ready to train KMeans with:',nC,'clusters')
+ km = KMeans(n_clusters=nC,n_init=10) #to get rid of warning
+ km.fit(dataNormed)
+ pickle.dump(km, open(mname, 'wb')) # dump trained model
+ print('KMeans trained model saved as:',mname)
