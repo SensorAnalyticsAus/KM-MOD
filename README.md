@@ -14,6 +14,7 @@ pip install opencv-python
 pip install shutils
 pip install -U scikit-learn (for kmeans)
 pip install matplotlib
+pip install tqdm
 
 sudo apt update
 sudo apt upgrade
