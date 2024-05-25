@@ -3,7 +3,7 @@
 #                      Sensor Analytics Australia™ 2024
 ###############################################################################
 ImgPath='../../foscamR4/snap'
-chunksize=500 # n imagefiles/processor
+cSz=500          # n imagefiles/workpacket
 wdir='./tmp-pkl' # path to working dir
 deBug=0 # to print mp progress messages set it to '1'
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
  ############### MultiProcessing Block ###############################
  mkdir_cleared(wdir) # working dir to save serialised mproc outputs
  img_ls=os.listdir(ImgPath)
- img_ls_chunk=list(chunk(img_ls,chunksize)) 
+ img_ls_chunk=list(chunk(img_ls,cSz)) 
  workpckts=workpacks(ImgPath,wdir,img_ls_chunk)
 
  pool = Pool()
