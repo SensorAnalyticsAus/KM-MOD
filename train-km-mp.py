@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
  pool = Pool()
  for _ in tqdm.tqdm(pool.imap_unordered(img_load_proc,workpckts),
-                    total=len(workpckts)):
+                    total=len(workpckts),colour='magenta'):
    pass
  pool.close()
  pool.join()
