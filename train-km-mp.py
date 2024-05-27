@@ -8,8 +8,9 @@ wdir='./tmp-pkl' # path to working dir
 deBug=0 # to print mp progress messages set it to '1'
 
 import sys
-if len(sys.argv) < 5:
-    print('USAGE: 0|1 numClusters YYYYMMDDHHMMSS YYYYMMDDHHMMSS')
+if len(sys.argv) < 6:
+    print('USAGE: -i|-ni  0|1 numClusters YYYYMMDDHHMMSS YYYYMMDDHHMMSS')
+    print('-i: run in interactive mode -ni run in batch or cron')
     print('0:Elbow Analyses 1:Actual KMeans YYYYMMDDHHMMSS: from -> to date-')
     print('time range (HHMMSS field in 24-hour clock format)')
     sys.exit(1)
@@ -76,11 +77,11 @@ if __name__ == "__main__":
  print('total images in {} : {}'.format(ImgPath,len(os.listdir(ImgPath))))
 
  ##########  Data Input Block #################
- opt = int(sys.argv[1]) # 0 for elbow analyses 1 for actual km clustering
- nC = int(sys.argv[2]) # number of clusters for elbow analyses or training 
- st_d_t=datetime.strptime(sys.argv[3],'%Y%m%d%H%M%S').timestamp()
- en_d_t=datetime.strptime(sys.argv[4],'%Y%m%d%H%M%S').timestamp()
- if len(sys.argv[3]) !=14 or len(sys.argv[4]) !=14: 
+ opt = int(sys.argv[2]) # 0 for elbow analyses 1 for actual km clustering
+ nC = int(sys.argv[3]) # number of clusters for elbow analyses or training 
+ st_d_t=datetime.strptime(sys.argv[4],'%Y%m%d%H%M%S').timestamp()
+ en_d_t=datetime.strptime(sys.argv[5],'%Y%m%d%H%M%S').timestamp()
+ if len(sys.argv[4]) !=14 or len(sys.argv[5]) !=14: 
     print('input datetime error')
     sys.exit(1)
  if int(st_d_t) > int(en_d_t):
@@ -94,8 +95,15 @@ if __name__ == "__main__":
  workpckts=workpacks(ImgPath,wdir,img_ls_chunk)
 
  pool = Pool()
+ if sys.argv[1] == '-i':
+     tRun=False
+     print('non-interactive mode:',tRun)
+ else: 
+     tRun=True
+     print('non-interactive mode',tRun)
  for _ in tqdm.tqdm(pool.imap_unordered(img_load_proc,workpckts),
-                    total=len(workpckts),colour='magenta'):
+                    total=len(workpckts),colour='magenta',
+                    disable=tRun):
    pass
  pool.close()
  pool.join()
