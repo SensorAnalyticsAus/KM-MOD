@@ -13,6 +13,15 @@ PROG=/mnt/SSD/dev/km-mod
 MOVPATH=/mnt/SSD/MOVIE
 DV=R4
 
+if [ $# -eq 0 ]
+then
+  echo "defaulting to interactive mode"
+  MODE=-i  
+else
+  echo "setting mode $1"
+  MODE=$1
+fi
+
 if [ ! -d $PROG ] || [ ! -d $MOVPATH ]
 then
    echo "dir path/s do not exist!"
@@ -29,7 +38,7 @@ DT_EN=$(date +%Y%m%d%H%M%S)
 
 FD=$(date +%a-%H)
 
-$PyPath/python ./train-km-mp.py $1 1 $NumC $DT_ST $DT_EN
+$PyPath/python ./train-km-mp.py $MODE 1 $NumC $DT_ST $DT_EN
 # Keep reducing Perc threshold by 10% until under FTOL frames
 # are found and Perc is still over 20%
 while : ; do
