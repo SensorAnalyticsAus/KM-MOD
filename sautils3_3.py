@@ -21,6 +21,7 @@ import cv2
 import numpy as np
 import skimage.measure
 import re
+from PIL import Image
 
 #########################################################################
 
@@ -257,6 +258,19 @@ def workpacks(imgpath,workDir,chunks):
 		  }
    wpcks.append(fields)
  return wpcks
+def check_img(filename):
+    try:
+        im = Image.open(filename)
+        im.verify() #I perform also verify, don't know if he sees other types o defects
+        im.close() #reload is necessary in my case
+        im = Image.open(filename) 
+        im.transpose(Image.FLIP_LEFT_RIGHT)
+        im.close()
+        return True
+    except: 
+        print(filename,color.RED+"corrupted"+color.END)
+        sys.stdout.flush()
+        return False
 
 if __name__ == '__main__':
 

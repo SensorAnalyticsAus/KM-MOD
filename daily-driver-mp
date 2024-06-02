@@ -6,10 +6,10 @@
 
 NumC=10
 PERC=80
-FTOL=2000 # max files for time-lapse video
-FR=10
-PyPath=/home/saauser/.venv/bin
-PROG=/mnt/SSD/dev/km-mod
+FTOL=1500 # max files for time-lapse video
+FR=15
+PyPath=/usr/bin
+PROG=/mnt/SSD/km-modR4
 MOVPATH=/mnt/SSD/MOVIE
 DV=R4
 
@@ -50,5 +50,5 @@ done
 
 ./moviefrm-list-ni $FR
 
-mv $MOVPATH/ffnames.mp4 $MOVPATH/ffnames$DV-$FD.mp4
+mv $MOVPATH/ffnames-$DV.mp4 $MOVPATH/ffnames$DV-$FD.mp4
 echo "$MOVPATH/ffnames$DV-$FD.mp4 saved"

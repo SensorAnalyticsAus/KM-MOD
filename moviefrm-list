@@ -6,9 +6,11 @@
 
 DIRP=/mnt/SSD
 FILPATH=./ffnames.txt
+DV=R4
+
 MOVPATH=$DIRP/MOVIE
 MOV=`basename $FILPATH .txt`
-TMPD=$DIRP/tmp/$MOV
+MOV=$MOV-$DV
 
 if [ $# == 0 ] 
 then
@@ -33,13 +35,9 @@ then
  exit 1
 fi
 
-if [[ -d "$TMPD" || -f "$TMPD" ]]
-then
- rm -rf $TMPD
-fi
-
-mkdir -p $TMPD
-echo "$TMPD re-created"
+rm -rf /tmp/tmp.* ||  true #clean up tmp
+TMPD=`mktemp -d`
+echo "$TMPD created"
 
 cat $FILPATH | xargs cp -t $TMPD 
 
@@ -62,3 +60,4 @@ cat *.jpg    | ffmpeg -f image2pipe -r $FR \
          $MOVPATH/$MOV.mp4 -y
 
 echo "jpg --> $MOVPATH/$MOV"
+

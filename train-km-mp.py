@@ -2,7 +2,7 @@
 #            KM-MOD Image Classifier for Security Cameras 
 #                      Sensor Analytics Australia™ 2024
 ###############################################################################
-ImgPath='../../foscamR4/snap'
+ImgPath='../foscamR4/snap'
 cSz=500          # n imagefiles/workpacket
 wdir='./tmp-pkl' # path to working dir
 deBug=0 # to print mp progress messages set it to '1'
@@ -19,7 +19,7 @@ from sklearn.cluster import KMeans
 import pickle
 import matplotlib.pyplot as plt
 from sautils3_3 import fileDt,calcEntropy,writeLog,imgcont,save_list,\
-                chunk,workpacks,mkdir_cleared,color
+                chunk,workpacks,mkdir_cleared,color,check_img
 import matplotlib
 import os
 import cv2
@@ -46,7 +46,9 @@ def img_load_proc(workpacket):
      fDt=datetime.strptime(fileDt(img),'%Y%m%d%H%M%S').timestamp()
      if int(fDt) >= int(st_d_t) and int(fDt) <= int(en_d_t):
         imgf=os.path.join(fpath,img)
-        imgd=p_img_read(imgf)
+        if check_img(imgf):
+           imgd=p_img_read(imgf)
+        else: continue
         # Features: Date_TS, Num_Con, Cont_Area, Entropy
         data.append([int(fileDt(img)),imgcont(imgd)[0],imgcont(imgd)[1],
                      calcEntropy(imgf)])
@@ -95,11 +97,11 @@ if __name__ == "__main__":
  workpckts=workpacks(ImgPath,wdir,img_ls_chunk)
 
  pool = Pool()
- if sys.argv[1] == '-i':
-     tRun=False
+ if sys.argv[1] == '-ni':
+     tRun=True
      print('non-interactive mode:',tRun)
  else: 
-     tRun=True
+     tRun=False
      print('non-interactive mode',tRun)
  for _ in tqdm.tqdm(pool.imap_unordered(img_load_proc,workpckts),
                     total=len(workpckts),colour='magenta',
