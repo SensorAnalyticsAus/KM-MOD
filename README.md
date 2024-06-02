@@ -22,7 +22,7 @@ sudo apt install ffmpeg
 ```
 
 ### Config
-Paths variables need to be set to actual paths at the beginning of these files.
+Paths and device identifier `DV` need to be set to actual paths and device name - at the beginning of these files.
 ```
 train-km-mp.py
 predict-km.py
