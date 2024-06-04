@@ -220,9 +220,21 @@ def genRows(filePath,dt_st,dt_en): # path to MD.log,frm: YYYYMMDD,to: YYYYMMDD
                 yield line
 def fileDt(fname): # searches YYYYMMDD-HHMMSS in filename rets YYYYMMDDHHMMSS
  s=re.search("([0-9]{4}[0-9]{2}[0-9]{2}\-[0-9]{6})",fname)
- d=s.group(0)
- d=d.replace('-','')
+ if s:
+        d=s.group(0)
+        d=d.replace('-','')
+ else: 
+        d='19000101000000' # If None then a very old date is sent
+        print('undated file/folder:-> {}{}{} ! returning:{}'
+              .format(color.RED,fname,color.END,d))
  return(d)
+def num_name(filename): # extracts all digits in a string as a number
+ regex = re.compile('\d+')
+ nlist=regex.findall(filename)
+ numstr=''
+ for s in nlist:
+        numstr += s
+ return int(numstr)
 def writeLog(msg,log_file):
  with open(log_file,'a') as logfile:
      logfile.write(msg+'\n')
