@@ -6,7 +6,7 @@
 * RPI4 2GB or higher
 * Python 3.4 or higher
 
-### Setup
+### Dependencies
 ```
 python -m pip install -U pip
 python -m pip install -U scikit-image 
