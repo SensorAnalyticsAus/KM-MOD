@@ -28,7 +28,7 @@ train-km-mp.py
 predict-km.py
 daily-driver-mp
 moviefrm-list
-moviefrm-list-ni (non-interactive version used by `daily-driver-mp`)
+moviefrm-list-ni (non-interactive version used by 'daily-driver-mp')
 ```
 
 ### Example 1
