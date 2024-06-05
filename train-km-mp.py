@@ -105,7 +105,7 @@ if __name__ == "__main__":
      print('non-interactive mode',tRun)
  for _ in tqdm.tqdm(pool.imap_unordered(img_load_proc,workpckts),
                     total=len(workpckts),colour='magenta',
-                    disable=tRun):
+                    disable=tRun,leave=True):
    pass
  pool.close()
  pool.join()
@@ -128,6 +128,7 @@ if __name__ == "__main__":
     knt_tot_sel  += int(ss[1])
  print('Total images:{} Images found:{}'
        .format(knt_tot,knt_tot_sel))
+ if knt_tot_sel == 0: sys.exit(1) 
 
  ############# Saving Outputs ################################
  save_list(fnames,'fnames.txt')
