@@ -4,7 +4,7 @@
 
 ### Requirements
 * RPI4 2GB or higher
-* Python 3.4 or higher
+* Python 3.7.3 or higher
 
 ### Dependencies
 ```
