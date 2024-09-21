@@ -29,6 +29,10 @@ moviefrm-list
 moviefrm-list-ni (non-interactive version used by `daily-driver-mp`)
 ```
 
+### Getting Started
+`git clone https://github.com/SensorAnalyticsAus/KM-MOD.git`
+`cd KM-MOD`
+
 ### Example 1
 Step 1 train
 
