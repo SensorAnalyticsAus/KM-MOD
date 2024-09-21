@@ -49,5 +49,5 @@ or
 
 `./daily-driver-mp off` 
 
-`off` prevents the progress-bar from showing, useful for `cron`
+`off` prevents the progressbar from showing, useful for `cron`
 This is best run at say 7am and 7pm daily as a `cron` job
