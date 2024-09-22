@@ -26,7 +26,8 @@ sudo apt install ffmpeg
 `cd KM-MOD`
 
 ### Config
-Paths/variables need to be set to actual paths/values at the beginning of these files.
+Paths and the `DV` identifier string need to be set to actual paths/value at the beginning of these files. The `DV` value must be the same among `daily-driver-mp`, `moviefrm-list`, and `moviefrm-list-ni`
+
 ```
 config.py
 daily-driver-mp
